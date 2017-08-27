@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.harding.tictactoe.AndroidTicTacToe">
+
+
+    <TableLayout
+        android:id="@+id/play_grid" android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="195dp">
+
+
+        <TableRow android:gravity="center_horizontal">
+            <Button android:id="@+id/one" android:layout_width="100dp"
+                android:layout_height="100dp" android:text="1"
+                android:textSize="70dp" />
+
+            <Button android:id="@+id/two" android:layout_width="100dp"
+                android:layout_height="100dp" android:text="2"
+                android:textSize="70dp" />
+
+            <Button
+                android:id="@+id/three"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:text="3"
+                android:textSize="70dp" />
+        </TableRow>
+
+        <TableRow android:gravity="center_horizontal">
+            <Button android:id="@+id/four" android:layout_width="100dp"
+                android:layout_height="100dp" android:text="4"
+                android:textSize="70dp" />
+
+            <Button android:id="@+id/five" android:layout_width="100dp"
+                android:layout_height="100dp" android:text="5"
+                android:textSize="70dp" />
+
+            <Button android:id="@+id/six" android:layout_width="100dp"
+                android:layout_height="100dp" android:text="6"
+                android:textSize="70dp" />
+        </TableRow>
+        <TableRow android:gravity="center_horizontal">
+            <Button android:id="@+id/seven" android:layout_width="100dp"
+                android:layout_height="100dp" android:text="7"
+                android:textSize="70dp" />
+
+            <Button android:id="@+id/eight" android:layout_width="100dp"
+                android:layout_height="100dp" android:text="8"
+                android:textSize="70dp" />
+
+            <Button android:id="@+id/nine" android:layout_width="100dp"
+                android:layout_height="100dp" android:text="9"
+                android:textSize="70dp" />
+        </TableRow>
+
+
+    </TableLayout>
+
+
+    <TextView android:id="@+id/information"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="39dp"
+        android:layout_centerVertical="true"
+        app:layout_constraintHorizontal_bias="0.501"
+        android:textSize="15dp"/>
+
+    <RelativeLayout
+        android:id="@+id/relativeCount"
+        android:layout_width="217dp"
+        android:layout_height="29dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.779"
+        tools:layout_editor_absoluteY="372dp"
+        tools:layout_editor_absoluteX="65dp">
+
+        <TextView
+            android:id="@+id/informationCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Counting........................."
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintLeft_toRightOf="parent"
+            app:layout_constraintRight_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:textSize="15dp"/>
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>
