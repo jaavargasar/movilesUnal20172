@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:myapp="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/new_game"
+        android:title="New Game"
+        android:icon="@drawable/ic_playingagain_tictactoe" />
+    <item android:id="@+id/ai_difficulty"
+        android:title="Difficulty"
+        android:icon="@drawable/ic_difficulty_level"  />
+    <item android:id="@+id/quit"
+        android:title="Quit"
+        android:icon="@drawable/ic_quit_game" />
+    <item android:id="@+id/about"
+        android:title="About"
+        android:icon="@drawable/ic_my_about" />
+</menu>
