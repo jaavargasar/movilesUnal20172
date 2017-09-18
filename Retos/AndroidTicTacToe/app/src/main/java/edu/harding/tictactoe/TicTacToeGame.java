@@ -22,6 +22,8 @@ public class TicTacToeGame {
     public static  char COMPUTER_PLAYER = 'O';
     public static final char OPEN_SPOT = ' ';
 
+    public char getBoardOccupant(int i) {return mBoard[i]; }
+
     // The computer&#39;s difficulty levels
     public enum DifficultyLevel {Easy, Harder, Expert};
     // Current difficulty level
@@ -123,8 +125,8 @@ public class TicTacToeGame {
         }
         else if (mDifficultyLevel == DifficultyLevel.Expert) {
 
-// Try to win, but if that&#39;s not possible, block.
-// If that&#39;s not possible, move anywhere.
+        // Try to win, but if that&#39;s not possible, block.
+        // If that&#39;s not possible, move anywhere.
             move = getWinningMove();
             if (move == -1)
                 move = getBlockingMove();
@@ -166,6 +168,8 @@ public class TicTacToeGame {
         return -1;
     }
 
+
+
     int getBlockingMove(){
         // See if there's a move O can make to block X from winning
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -185,52 +189,6 @@ public class TicTacToeGame {
         return -1;
     }
 
-    /*
-    public int getComputerMove()
-    {
-        int move;
-
-        // First see if there's a move O can make to win
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            if (mBoard[i] != HUMAN_PLAYER && mBoard[i] != COMPUTER_PLAYER) {
-                char curr = mBoard[i];
-                mBoard[i] = COMPUTER_PLAYER;
-                if (checkForWinner() == 3) {
-                    //System.out.println("Computer is moving to " + (i + 1));
-                    return i;//NEW FLAG ADDED TO SEE WHAT WILL HAPPEND NEXT ---------------> HERE
-                }
-                else
-                    mBoard[i] = curr;
-            }
-        }
-
-        // See if there's a move O can make to block X from winning
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            if (mBoard[i] != HUMAN_PLAYER && mBoard[i] != COMPUTER_PLAYER) {
-                char curr = mBoard[i];   // Save the current number
-                mBoard[i] = HUMAN_PLAYER;
-                if (checkForWinner() == 2) {
-                    mBoard[i] = COMPUTER_PLAYER;
-                    //System.out.println("Computer is moving to " + (i + 1));
-                    return i; //NEW FLAG ADDED TO SEE WHAT WILL HAPPEND NEXT ---------------> HERE
-                }
-                else
-                    mBoard[i] = curr;
-            }
-        }
-
-        // Generate random move
-        do
-        {
-            move = mRand.nextInt(BOARD_SIZE);
-        } while (mBoard[move] == HUMAN_PLAYER || mBoard[move] == COMPUTER_PLAYER);
-
-        //System.out.println("Computer is moving to " + (move + 1));
-
-        setMove(COMPUTER_PLAYER,move );
-        //mBoard[move] = COMPUTER_PLAYER;
-        return move; //return in range ( 0-8)
-    }*/
 
     /** Clear the board of all X's and O's by setting all spots to OPEN_SPOT. */
     public void clearBoard(){
@@ -244,13 +202,18 @@ public class TicTacToeGame {
      * @param location - The location (0-8) to place the move
      */
     public void setMove(char player, int location){
-        if(  mBoard[location] != HUMAN_PLAYER && mBoard[location] != COMPUTER_PLAYER  )
-            mBoard[location]= player;
+            mBoard[location] = player;
     }
 
-    public void setShapeHuman(char shape){
-        HUMAN_PLAYER=shape;
+    public boolean isEnable(char player, int location){
+        if(  mBoard[location] != HUMAN_PLAYER && mBoard[location] != COMPUTER_PLAYER  ){
+            return true;
+        }
+
+        return false;
     }
+
+    public void setShapeHuman(char shape){ HUMAN_PLAYER=shape; }
 
     public void setShapeComputer(char shape){
         COMPUTER_PLAYER=shape;
