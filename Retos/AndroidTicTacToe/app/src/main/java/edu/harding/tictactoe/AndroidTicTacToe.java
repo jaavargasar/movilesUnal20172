@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -33,6 +34,7 @@ public class AndroidTicTacToe extends AppCompatActivity {
     private boolean mGameOver;
 
 
+    private int difficultLevel=2;
 
 
     private BoardView mBoardView;
@@ -44,8 +46,8 @@ public class AndroidTicTacToe extends AppCompatActivity {
     public int winner;
 
     private char PLAYER;
-    private int chooseRandPlayer;
-    private int chooseShapeRand;
+    private int chooseRandPlayer=-1;
+    private int chooseShapeRand=-1;
 
     public int generalComputerPos;
 
@@ -61,8 +63,10 @@ public class AndroidTicTacToe extends AppCompatActivity {
     private String showCount="";
 
     static final int DIALOG_DIFFICULTY_ID = 0;
-    static final int DIALOG_QUIT_ID = 1;
+    static final int DIALOG_RESET_SCORES = 1;
     static final int DIALOG_ABOUT=2;
+
+    private SharedPreferences mPrefs;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -82,13 +86,15 @@ public class AndroidTicTacToe extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.new_game:
+                resetRandVariables();
+                setBackDifficultLevel();
                 startNewGame();
                 return true;
             case R.id.ai_difficulty:
                 showDialog(DIALOG_DIFFICULTY_ID);
                 return true;
-            case R.id.quit:
-                showDialog(DIALOG_QUIT_ID);
+            case R.id.reset_scores:
+                showDialog(DIALOG_RESET_SCORES);
                 return true;
             case R.id.about:
                 showDialog(DIALOG_ABOUT);
@@ -109,6 +115,8 @@ public class AndroidTicTacToe extends AppCompatActivity {
         mHumanMediaPlayer.release();
         mComputerMediaPlayer.release();
     }
+
+
 
 
 
@@ -138,14 +146,21 @@ public class AndroidTicTacToe extends AppCompatActivity {
                             // TODO: Set the diff level of mGame based on which item was selected.
                             if( item==0 ) {
                                 mGame.setDifficultyLevel(mGame.getDifficultyLevel().Easy);
+                                //-----> gugardarla
+                                difficultLevel=0;
+                                resetRandVariables();
                                 startNewGame();
                             }
                             else if( item==1) {
                                 mGame.setDifficultyLevel(mGame.getDifficultyLevel().Harder);
+                                difficultLevel=1;
+                                resetRandVariables();
                                 startNewGame();
                             }
                             else {
                                 mGame.setDifficultyLevel(mGame.getDifficultyLevel().Expert);
+                                difficultLevel=2;
+                                resetRandVariables();
                                 startNewGame();
                             }
 
@@ -161,18 +176,23 @@ public class AndroidTicTacToe extends AppCompatActivity {
 
             ///////////////////////////////////////
 
-            case DIALOG_QUIT_ID:
+            case DIALOG_RESET_SCORES:
             // Create the quit confirmation dialog
 
-                builder.setMessage(R.string.quit_question)
+                builder.setMessage(R.string.quit_question) //reset the scores
                         .setCancelable(false)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                AndroidTicTacToe.this.finish();
+                                //AndroidTicTacToe.this.finish();
+                                humanCount=0; tiesCount=0; androidCount=0;
+                                showCount = "Human: "+humanCount+"  Ties: "+tiesCount+"  Android: "+androidCount;
+                                mInfoCountView.setText(showCount);
                             }
                         })
                         .setNegativeButton(R.string.no, null);
                 dialog = builder.create();
+
+
 
                 break;
 
@@ -208,16 +228,90 @@ public class AndroidTicTacToe extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_android_tic_tac_toe);
 
+        mPrefs = getSharedPreferences("ttt_prefs", MODE_PRIVATE);
+
+        // Restore the scores
+        humanCount = mPrefs.getInt("mHumanWins", 0);
+        androidCount = mPrefs.getInt("mComputerWins", 0);
+        tiesCount = mPrefs.getInt("mTies", 0);
+        showCount = "Human: "+humanCount+"  Ties: "+tiesCount+"  Android: "+androidCount;
+        difficultLevel = mPrefs.getInt("difficultLevelUpdate1",0);
+
+
+
+
+
+        //mInfoCountView.setText(showCount);
+        //mInfoCountView =mPrefs.getString("countInfo","");
+
+
+
 
         mInfoTextView = (TextView) findViewById(R.id.information);
         mInfoCountView = (TextView) findViewById(R.id.informationCount);
         mGame = new TicTacToeGame();
         mBoardView = (BoardView) findViewById(R.id.board);
         mBoardView.setGame(mGame);
+        setBackDifficultLevel();
         ///////////
         // Listen for touches on the board
         mBoardView.setOnTouchListener(mTouchListener);
-        startNewGame();
+
+        if( savedInstanceState==null) startNewGame();
+
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore the game's state
+        mGame.setBoardState(savedInstanceState.getCharArray("board"));
+        mGameOver = savedInstanceState.getBoolean("mGameOver");
+        humanCount = savedInstanceState.getInt("mHumanWins");
+        androidCount = savedInstanceState.getInt("mComputerWins");
+        tiesCount = savedInstanceState.getInt("mTies");
+        mInfoTextView.setText(savedInstanceState.getCharSequence("info"));
+        PLAYER = savedInstanceState.getChar("mGoFirst");
+        chooseRandPlayer= savedInstanceState.getInt("mRandPlayer");
+        chooseShapeRand= savedInstanceState.getInt("mRandShape");
+        mInfoCountView.setText(savedInstanceState.getCharSequence("countInfo"));
+        //difficultLevel =savedInstanceState.getInt("difficultLevelUpdate");
+
+    }
+
+    //guardar las instancias del programa
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putCharArray("board", mGame.getBoardState());
+        outState.putBoolean("mGameOver", mGameOver);
+        outState.putInt("mHumanWins", Integer.valueOf(humanCount));
+        outState.putInt("mComputerWins", Integer.valueOf(androidCount));
+        outState.putInt("mTies", Integer.valueOf(tiesCount));
+        outState.putCharSequence("info", mInfoTextView.getText());
+        outState.putChar("mGoFirst", PLAYER);
+        outState.putInt("mRandPlayer", Integer.valueOf(chooseRandPlayer) );
+        outState.putInt("mRandShape", Integer.valueOf(chooseShapeRand) );
+        outState.putCharSequence("countInfo",mInfoCountView.getText());
+        //outState.putInt("difficultLevelUpdate", Integer.valueOf(difficultLevel) );
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Save the current scores
+        SharedPreferences.Editor ed = mPrefs.edit();
+        ed.putInt("mHumanWins", humanCount);
+        ed.putInt("mComputerWins", androidCount);
+        ed.putInt("mTies", tiesCount);
+        ed.putInt("difficultLevelUpdate1",difficultLevel);
+        ed.putString("countInfo", mInfoCountView.getText().toString() );
+        ed.commit();
     }
 
     // Set up the game board.
@@ -228,19 +322,32 @@ public class AndroidTicTacToe extends AppCompatActivity {
         mGame.clearBoard();
         mBoardView.invalidate(); // Redraw the board
 
-        chooseShapeRand = mGame.mRand.nextInt(2);
-        if( chooseShapeRand==1){
-            mGame.setShapeHuman('X'); mGame.setShapeComputer('O');
-            mBoardView.setPictureHuman(true); mBoardView.setPictureComputer(true);
-        }
-        else{
-            mGame.setShapeHuman('O'); mGame.setShapeComputer('X');
-            mBoardView.setPictureHuman(false); mBoardView.setPictureComputer(false);
+
+        //chooseShapeRand=-1;
+        //chooseRandPlayer=-1;
+
+
+
+
+        if( chooseShapeRand == -1) chooseShapeRand = mGame.mRand.nextInt(2);
+        if (chooseShapeRand == 1) {
+            mGame.setShapeHuman('X');
+            mGame.setShapeComputer('O');
+            mBoardView.setPictureHuman(true);
+            mBoardView.setPictureComputer(true);
+        } else {
+            mGame.setShapeHuman('O');
+            mGame.setShapeComputer('X');
+            mBoardView.setPictureHuman(false);
+            mBoardView.setPictureComputer(false);
         }
 
-        chooseRandPlayer= mGame.mRand.nextInt(2);
-        if(chooseRandPlayer==1) PLAYER=mGame.HUMAN_PLAYER;
-        else PLAYER=mGame.COMPUTER_PLAYER;
+
+        if( chooseRandPlayer==-1) {
+            chooseRandPlayer = mGame.mRand.nextInt(2);
+            if (chooseRandPlayer == 1) PLAYER = mGame.HUMAN_PLAYER;
+            else PLAYER = mGame.COMPUTER_PLAYER;
+        }
 
 
 
@@ -254,6 +361,7 @@ public class AndroidTicTacToe extends AppCompatActivity {
         //mInfoTextView.setText(R.string.first_human);
 
     }// End of startNewGame
+
 
 
 
@@ -294,16 +402,19 @@ public class AndroidTicTacToe extends AppCompatActivity {
                     mInfoTextView.setText(R.string.result_tie);
                     tiesCount++;
                     mGameOver=true;
+                    resetRandVariables();
                 }
                 else if (winner == 2) {
                     mInfoTextView.setText(R.string.result_human_wins);
                     humanCount++;
                     mGameOver=true;
+                    resetRandVariables();
                 }
                 else {
                     mInfoTextView.setText(R.string.result_computer_wins);
                     androidCount++;
                     mGameOver=true;
+                    resetRandVariables();
                 }
 
                 showCount = "Human: "+humanCount+"  Ties: "+tiesCount+"  Android: "+androidCount;
@@ -315,6 +426,13 @@ public class AndroidTicTacToe extends AppCompatActivity {
             return false;
         }
     };
+
+    private void resetRandVariables(){
+        chooseRandPlayer= -1;
+        chooseShapeRand=  -1;
+    }
+
+
     private boolean setMove(char player, int location) {
 
         generalComputerPos=location;
@@ -341,6 +459,12 @@ public class AndroidTicTacToe extends AppCompatActivity {
                 mGame.setMove(mGame.COMPUTER_PLAYER, generalComputerPos);
             }
         }, 200);
+    }
+
+    private void setBackDifficultLevel(){
+        if( difficultLevel==0) mGame.setDifficultyLevel(mGame.getDifficultyLevel().Easy);
+        else if(difficultLevel==1)mGame.setDifficultyLevel(mGame.getDifficultyLevel().Harder);
+        else mGame.setDifficultyLevel(mGame.getDifficultyLevel().Expert);
     }
 
 

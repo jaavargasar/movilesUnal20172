@@ -22,8 +22,8 @@
                 app:showAsAction="always|withText"/>
             <item
                 android:orderInCategory="100"
-                android:id="@+id/quit"
-                android:title="Quit"
+                android:id="@+id/reset_scores"
+                android:title="Reset Scores"
                 android:icon="@drawable/ic_quit_game"
                 app:showAsAction="always|withText" />
             <item

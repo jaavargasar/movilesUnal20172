@@ -219,5 +219,9 @@ public class TicTacToeGame {
         COMPUTER_PLAYER=shape;
     }
 
+    public char[] getBoardState(){ return mBoard; }
+
+    public void setBoardState(char[] mBoard) { 	this.mBoard = mBoard; 	}
+
 
 }
