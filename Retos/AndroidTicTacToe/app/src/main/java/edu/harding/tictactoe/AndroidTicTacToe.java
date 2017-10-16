@@ -4,10 +4,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
@@ -55,6 +57,8 @@ public class AndroidTicTacToe extends AppCompatActivity {
     MediaPlayer mHumanMediaPlayer;
     MediaPlayer mComputerMediaPlayer;
 
+    private  boolean mSoundOn = true;
+
     // Buttons making up the board
     private Button mBoardButtons[];
     // Various text displayed
@@ -62,7 +66,7 @@ public class AndroidTicTacToe extends AppCompatActivity {
     private TextView mInfoCountView;
     private String showCount="";
 
-    static final int DIALOG_DIFFICULTY_ID = 0;
+    //static final int DIALOG_DIFFICULTY_ID = 0;
     static final int DIALOG_RESET_SCORES = 1;
     static final int DIALOG_ABOUT=2;
 
@@ -90,8 +94,8 @@ public class AndroidTicTacToe extends AppCompatActivity {
                 setBackDifficultLevel();
                 startNewGame();
                 return true;
-            case R.id.ai_difficulty:
-                showDialog(DIALOG_DIFFICULTY_ID);
+            case R.id.ai_settings:
+                startActivityForResult(new Intent(this, Settings.class), 0);
                 return true;
             case R.id.reset_scores:
                 showDialog(DIALOG_RESET_SCORES);
@@ -127,53 +131,6 @@ public class AndroidTicTacToe extends AppCompatActivity {
 
 
         switch(id) {
-            case DIALOG_DIFFICULTY_ID:
-                builder.setTitle(R.string.difficulty_choose);
-                final CharSequence[] levels = {
-                        getResources().getString(R.string.difficulty_easy),
-                        getResources().getString(R.string.difficulty_harder),
-                        getResources().getString(R.string.difficulty_expert)};
-
-                // TODO: Set selected, an integer (0 to n-1), for the Difficulty dialog.
-                // selected is the radio button that should be selected.
-                int selected=2;
-
-                builder.setSingleChoiceItems(levels, selected,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int item) {
-                                dialog.dismiss(); // Close dialog
-
-                            // TODO: Set the diff level of mGame based on which item was selected.
-                            if( item==0 ) {
-                                mGame.setDifficultyLevel(mGame.getDifficultyLevel().Easy);
-                                //-----> gugardarla
-                                difficultLevel=0;
-                                resetRandVariables();
-                                startNewGame();
-                            }
-                            else if( item==1) {
-                                mGame.setDifficultyLevel(mGame.getDifficultyLevel().Harder);
-                                difficultLevel=1;
-                                resetRandVariables();
-                                startNewGame();
-                            }
-                            else {
-                                mGame.setDifficultyLevel(mGame.getDifficultyLevel().Expert);
-                                difficultLevel=2;
-                                resetRandVariables();
-                                startNewGame();
-                            }
-
-                                // Display the selected difficulty level
-                                Toast.makeText(getApplicationContext(), levels[item],
-                                        Toast.LENGTH_SHORT).show();
-
-                            }
-                        });
-                dialog = builder.create();
-
-                break;
-
             ///////////////////////////////////////
 
             case DIALOG_RESET_SCORES:
@@ -227,8 +184,20 @@ public class AndroidTicTacToe extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_android_tic_tac_toe);
+        mGame = new TicTacToeGame();
+        //mPrefs = getSharedPreferences("ttt_prefs", MODE_PRIVATE);
 
-        mPrefs = getSharedPreferences("ttt_prefs", MODE_PRIVATE);
+        // Restore the scores from the persistent preference data source
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mSoundOn = mPrefs.getBoolean("sound", true);
+        String difficultyLevel = mPrefs.getString("difficulty_level",
+                getResources().getString(R.string.difficulty_harder));
+        if (difficultyLevel.equals(getResources().getString(R.string.difficulty_easy)))
+            mGame.setDifficultyLevel(TicTacToeGame.DifficultyLevel.Easy);
+        else if (difficultyLevel.equals(getResources().getString(R.string.difficulty_harder)))
+            mGame.setDifficultyLevel(TicTacToeGame.DifficultyLevel.Harder);
+        else
+            mGame.setDifficultyLevel(TicTacToeGame.DifficultyLevel.Expert);
 
         // Restore the scores
         humanCount = mPrefs.getInt("mHumanWins", 0);
@@ -249,8 +218,11 @@ public class AndroidTicTacToe extends AppCompatActivity {
 
         mInfoTextView = (TextView) findViewById(R.id.information);
         mInfoCountView = (TextView) findViewById(R.id.informationCount);
-        mGame = new TicTacToeGame();
+
         mBoardView = (BoardView) findViewById(R.id.board);
+
+        mBoardView.setColor(mPrefs.getInt("board_color", 0xFFCCCCCC));
+
         mBoardView.setGame(mGame);
         setBackDifficultLevel();
         ///////////
@@ -405,8 +377,10 @@ public class AndroidTicTacToe extends AppCompatActivity {
                     resetRandVariables();
                 }
                 else if (winner == 2) {
-                    mInfoTextView.setText(R.string.result_human_wins);
+                    String defaultMessage = getResources().getString(R.string.result_human_wins);
+                    mInfoTextView.setText(mPrefs.getString("victory_message", defaultMessage));
                     humanCount++;
+
                     mGameOver=true;
                     resetRandVariables();
                 }
@@ -438,7 +412,7 @@ public class AndroidTicTacToe extends AppCompatActivity {
         generalComputerPos=location;
         if(mGame.isEnable(player, location) ) {
             if(player==mGame.HUMAN_PLAYER){
-                mHumanMediaPlayer.start();
+                if( mSoundOn)  mHumanMediaPlayer.start();
                 mGame.setMove(mGame.HUMAN_PLAYER, location);
             }
             else handlerTime();
@@ -455,7 +429,7 @@ public class AndroidTicTacToe extends AppCompatActivity {
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             public void run() {
-                mComputerMediaPlayer.start();
+                if( mSoundOn ) mComputerMediaPlayer.start();
                 mGame.setMove(mGame.COMPUTER_PLAYER, generalComputerPos);
             }
         }, 200);
@@ -465,6 +439,29 @@ public class AndroidTicTacToe extends AppCompatActivity {
         if( difficultLevel==0) mGame.setDifficultyLevel(mGame.getDifficultyLevel().Easy);
         else if(difficultLevel==1)mGame.setDifficultyLevel(mGame.getDifficultyLevel().Harder);
         else mGame.setDifficultyLevel(mGame.getDifficultyLevel().Expert);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == RESULT_CANCELED) {
+            // Apply potentially new settings
+
+            mSoundOn = mPrefs.getBoolean("sound", true);
+
+            String difficultyLevel = mPrefs.getString("difficulty_level",
+                    getResources().getString(R.string.difficulty_harder));
+
+            if (difficultyLevel.equals(getResources().getString(R.string.difficulty_easy)))
+                mGame.setDifficultyLevel(TicTacToeGame.DifficultyLevel.Easy);
+            else if (difficultyLevel.equals(getResources().getString(R.string.difficulty_harder)))
+                mGame.setDifficultyLevel(TicTacToeGame.DifficultyLevel.Harder);
+            else
+                mGame.setDifficultyLevel(TicTacToeGame.DifficultyLevel.Expert);
+
+            mBoardView.setColor(mPrefs.getInt("board_color", 0xFFCCCCCC));
+        }
     }
 
 

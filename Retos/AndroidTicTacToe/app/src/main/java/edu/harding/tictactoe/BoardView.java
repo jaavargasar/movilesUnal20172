@@ -31,6 +31,8 @@ public class BoardView extends View {
 
     private Paint mPaint;
 
+    private int color = Color.LTGRAY;
+
     public void initialize() {
 
         mHumanBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.x_img);
@@ -77,7 +79,7 @@ public class BoardView extends View {
         int boardHeight = getHeight();
 
         // Make thick, light gray lines
-        mPaint.setColor(Color.LTGRAY);
+        mPaint.setColor(this.color);
         mPaint.setStrokeWidth(GRID_WIDTH);
 
         // Draw the two vertical board lines
@@ -115,6 +117,12 @@ public class BoardView extends View {
         }
 
 
+    }
+
+    public int getColor(){ return color;}
+
+    public void setColor(int color){
+        this.color= color;
     }
 
 

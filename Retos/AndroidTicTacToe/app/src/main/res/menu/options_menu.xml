@@ -15,9 +15,9 @@
                 android:icon="@drawable/ic_playingagain_tictactoe"
                 android:orderInCategory="100"
                 app:showAsAction="always|withText" />
-            <item android:id="@+id/ai_difficulty"
-                android:title="Difficulty"
-                android:icon="@drawable/ic_difficulty_level"
+            <item android:id="@+id/ai_settings"
+                android:title="Settings"
+                android:icon="@drawable/ic_action_settings"
                 android:orderInCategory="100"
                 app:showAsAction="always|withText"/>
             <item
